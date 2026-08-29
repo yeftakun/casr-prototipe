@@ -2,7 +2,7 @@
 
 **Project:** Canonical Agent Session Runtime (CASR)
 
-Dokumen ini menampung ide, enhancement, technical debt, dan kemungkinan fitur masa depan.
+Dokumen ini menampung ide, enhancement, technical debt, architectural rules, dan kemungkinan fitur masa depan.
 
 Backlog **bukan roadmap aktif**.
 
@@ -117,9 +117,9 @@ Harus mendukung incremental import tanpa duplicate.
 
 ## BL-CORE-003 — Stable Event Identity
 
-**Status:** IDEA  
+**Status:** REVIEW  
 **Priority:** P0  
-**Target:** Unscheduled
+**Target:** Candidate V0.2A
 
 Definisikan strategy identity untuk canonical events.
 
@@ -141,7 +141,7 @@ Harus mampu menjamin deduplication pada repeated import.
 
 **Status:** REVIEW  
 **Priority:** P1  
-**Target:** Candidate V0.2
+**Target:** Candidate V0.2C
 
 Pisahkan conversation history dari execution/runtime history jika diperlukan.
 
@@ -163,9 +163,9 @@ native session binding
 
 **Status:** REVIEW  
 **Priority:** P1  
-**Target:** Candidate V0.2
+**Target:** Candidate V0.2B
 
-Persist token-related events and aggregates.
+Persist token-related events dan aggregates.
 
 Potential metrics:
 
@@ -289,6 +289,167 @@ hybrid retrieval
 
 ---
 
+## BL-CORE-011 — Session Timestamp Semantics
+
+**Status:** REVIEW  
+**Priority:** P1  
+**Target:** Before Canonical Session Ownership
+
+Pisahkan semantics timestamp milik CASR dari timestamp native provider.
+
+Current issue:
+
+```text
+sessions.created_at
+currently may represent native session creation time
+```
+
+Future distinction may require:
+
+```text
+created_at
+registered_at
+source_created_at
+source_updated_at
+last_imported_at
+```
+
+Goal:
+
+```text
+CASR-owned timestamps
+!=
+native-provider timestamps
+```
+
+Native timestamps harus tetap traceable tetapi tidak boleh ambigu dengan lifecycle CASR logical session.
+
+---
+
+## BL-CORE-012 — Canonical Vocabulary Isolation
+
+**Status:** PLANNED  
+**Priority:** P0  
+**Target:** Before V0.2A implementation
+
+Canonical core tidak boleh mengekspos vocabulary atau schema spesifik provider.
+
+Forbidden example:
+
+```text
+CanonicalEvent.type = "event_msg"
+CanonicalEvent.type = "response_item"
+CanonicalEvent.type = "turn_context"
+```
+
+Nama tersebut adalah vocabulary native Codex.
+
+Required architecture:
+
+```text
+Native Provider Vocabulary
+        ↓
+Adapter Parser
+        ↓
+Canonical Normalizer
+        ↓
+Provider-neutral Canonical Vocabulary
+```
+
+Potential canonical concepts:
+
+```text
+user_message
+assistant_message
+tool_call
+tool_result
+reasoning
+usage
+execution
+system_context
+```
+
+Exact canonical vocabulary harus ditentukan setelah rollout discovery.
+
+Hard rule:
+
+```text
+provider schema must stop at adapter boundary
+```
+
+---
+
+## BL-CORE-013 — Incremental Import Cursor
+
+**Status:** REVIEW  
+**Priority:** P0  
+**Target:** Candidate V0.2A
+
+Track progress import untuk setiap native binding/source.
+
+Possible state:
+
+```text
+native binding
+last imported sequence
+last byte offset
+last native event ID
+last source timestamp
+last import timestamp
+source fingerprint
+```
+
+Repeated import harus memproses hanya event baru saat aman dilakukan.
+
+Requirements:
+
+```text
+restart-safe
+idempotent
+recoverable
+no skipped events
+no duplicate canonical events
+```
+
+Cursor strategy harus dipilih setelah behavior rollout Codex dipahami.
+
+---
+
+## BL-CORE-014 — Canonical Event Ordering Semantics
+
+**Status:** REVIEW  
+**Priority:** P0  
+**Target:** Candidate V0.2A
+
+Define deterministic ordering untuk canonical events.
+
+Jangan mengandalkan timestamp saja.
+
+Potential ordering inputs:
+
+```text
+source sequence
+native file order
+native event ID
+native timestamp
+import sequence
+CASR sequence
+```
+
+Requirements:
+
+```text
+deterministic replay
+stable repeated import
+no timestamp collision ambiguity
+source-order preservation
+cross-binding extensibility
+```
+
+Canonical session pada akhirnya harus memiliki stable monotonic logical sequence.
+
+---
+
 # 3. Adapter Layer
 
 ## BL-ADAPTER-001 — Codex Rollout Discovery Spike
@@ -391,6 +552,106 @@ Jangan membuat abstraction sebelum second adapter benar-benar dimulai.
 
 ---
 
+## BL-ADAPTER-005 — Unknown Native Event Preservation
+
+**Status:** REVIEW  
+**Priority:** P0  
+**Target:** Candidate V0.2A
+
+CASR tidak boleh silently discard native events yang belum dipahami.
+
+Jika parser menemukan unknown native event:
+
+```text
+unknown native event
+        ↓
+preserve raw payload
+        ↓
+mark as unclassified
+        ↓
+continue import when safe
+```
+
+Requirements:
+
+```text
+no silent data loss
+source event traceability
+raw payload preservation
+diagnostic visibility
+forward compatibility
+```
+
+Unknown event tidak otomatis menjadi canonical semantic event sampai maknanya dipahami.
+
+---
+
+## BL-ADAPTER-006 — Partial and Corrupt Rollout Handling
+
+**Status:** REVIEW  
+**Priority:** P1  
+**Target:** Candidate V0.2A
+
+Define parser behavior untuk incomplete atau malformed native rollout data.
+
+Cases:
+
+```text
+truncated JSONL line
+partially written final event
+invalid JSON
+missing expected field
+unexpected field type
+file changed during read
+```
+
+Rules harus membedakan:
+
+```text
+recoverable
+skippable
+retryable
+fatal
+```
+
+CASR tidak boleh merusak canonical history karena native source file sedang incomplete.
+
+---
+
+## BL-ADAPTER-007 — Provider-neutral Resume Dispatch
+
+**Status:** DEFERRED  
+**Priority:** P2  
+**Target:** Before Second Adapter
+
+Current CLI resume orchestration masih Codex-specific:
+
+```text
+runResume()
+    ↓
+adapter == codex
+    ↓
+resumeCodexSession()
+```
+
+Future direction:
+
+```text
+CLI
+ ↓
+Resume Service
+ ↓
+Adapter Resolution
+ ↓
+adapter.resume()
+```
+
+CLI akhirnya tidak boleh mengetahui provider-specific implementation details.
+
+Jangan membuat AdapterRegistry/factory abstraction sebelum second adapter benar-benar diperlukan.
+
+---
+
 # 4. Session Management
 
 ## BL-SESSION-001 — Session Search
@@ -483,7 +744,7 @@ native title
 
 **Status:** IDEA  
 **Priority:** P0  
-**Target:** Future cross-provider phase
+**Target:** Future Cross-provider Phase
 
 Target architecture:
 
@@ -494,7 +755,7 @@ CASR Session
    └── OpenCode binding
 ```
 
-This becomes strategically important for provider-independent logical sessions.
+Strategically important untuk provider-independent logical sessions.
 
 ---
 
@@ -504,9 +765,43 @@ This becomes strategically important for provider-independent logical sessions.
 **Priority:** P1  
 **Target:** Future
 
-Track historical native bindings rather than only current association.
+Track historical native bindings rather than hanya current association.
 
-Useful for migration and execution traceability.
+Useful for migration dan execution traceability.
+
+---
+
+## BL-SESSION-008 — Multi-binding Read Model Refactor
+
+**Status:** DEFERRED  
+**Priority:** P1  
+**Target:** Before Second Adapter
+
+Current V0.1 read model assumes:
+
+```text
+SessionDetail.nativeBinding
+```
+
+while database architecture permits:
+
+```text
+CASR Session
+    ↓
+N native bindings
+```
+
+Future refactor:
+
+```text
+nativeBinding
+    ↓
+nativeBindings[]
+```
+
+`casr sessions` query juga harus menghindari duplicate logical session ketika multiple bindings tersedia.
+
+Do not implement until second-adapter work begins.
 
 ---
 
@@ -518,9 +813,9 @@ Useful for migration and execution traceability.
 **Priority:** P3  
 **Target:** Unscheduled
 
-Current `casr sessions` intentionally uses simple terminal formatting.
+Current `casr sessions` menggunakan simple terminal formatting.
 
-Potential future output:
+Potential:
 
 ```text
 ID | Agent | Title | Workspace | Updated
@@ -542,6 +837,7 @@ Potential:
 casr sessions --json
 casr inspect <id> --json
 casr doctor --json
+casr sync --json
 ```
 
 Useful for scripting and automation.
@@ -556,7 +852,7 @@ Useful for scripting and automation.
 
 Display shortened IDs while preserving full canonical ID internally.
 
-Need collision-safe resolution if short IDs become command inputs.
+Need collision-safe resolution jika short IDs menjadi command inputs.
 
 ---
 
@@ -572,9 +868,7 @@ Potential:
 casr resume
 ```
 
-without explicit ID, opening interactive selection.
-
-Not required while CLI is architecture-first.
+without explicit ID, membuka interactive selection.
 
 ---
 
@@ -584,7 +878,7 @@ Not required while CLI is architecture-first.
 **Priority:** P2  
 **Target:** Unscheduled
 
-Potential error categories:
+Potential categories:
 
 ```text
 configuration
@@ -594,6 +888,7 @@ session-not-found
 unsupported-adapter
 native-runtime
 migration
+canonical-import
 ```
 
 ---
@@ -611,7 +906,7 @@ Potential:
 --debug
 ```
 
-Must avoid leaking secrets or auth information.
+Must avoid leaking secrets/auth information.
 
 ---
 
@@ -673,6 +968,7 @@ Potential doctor addition:
 PRAGMA integrity_check
 migration version
 registry binding integrity
+canonical store integrity
 ```
 
 ---
@@ -710,7 +1006,7 @@ missing-native
 
 Current adapter opens Codex SQLite read-only.
 
-Potential additional safeguards:
+Potential safeguards:
 
 ```text
 centralized read-only native storage API
@@ -722,7 +1018,7 @@ documented forbidden paths
 
 ## BL-SAFE-002 — Credential Path Denylist
 
-**Status:** IDEA  
+**Status:** REVIEW  
 **Priority:** P0  
 **Target:** Unscheduled
 
@@ -745,7 +1041,7 @@ Could become adapter-level safety guard.
 **Priority:** P1  
 **Target:** Unscheduled
 
-Integration test could snapshot file metadata/hashes before and after CASR discovery/sync to verify no native writes occurred.
+Integration test could snapshot file metadata/hashes before and after CASR discovery/sync/import to verify no native writes occurred.
 
 Needs careful design to avoid flaky tests.
 
@@ -764,7 +1060,7 @@ workspace exists?
 directory accessible?
 ```
 
-Need decide fallback behavior if original workspace has been moved/deleted.
+Need decide fallback behavior jika original workspace dipindahkan atau dihapus.
 
 ---
 
@@ -813,7 +1109,7 @@ duration
 
 **Status:** IDEA  
 **Priority:** P2  
-**Target:** Candidate execution-history phase
+**Target:** Candidate V0.2C
 
 Record:
 
@@ -835,9 +1131,9 @@ workspace
 
 **Status:** DONE  
 **Priority:** P1  
-**Target:** V0.1 closure
+**Target:** V0.1 Closure
 
-Create project README covering:
+Project README covering:
 
 ```text
 purpose
@@ -865,6 +1161,8 @@ Codex read-only boundary
 SQLite selection
 canonical raw history immutability
 multiple native binding model
+canonical vocabulary boundary
+event identity strategy
 ```
 
 ---
@@ -873,7 +1171,7 @@ multiple native binding model
 
 **Status:** IDEA  
 **Priority:** P2  
-**Target:** Before first public release
+**Target:** Before First Public Release
 
 Checklist:
 
@@ -910,6 +1208,39 @@ standalone executable
 ```
 
 Do not prioritize before architecture stabilizes.
+
+---
+
+## BL-DX-005 — Native Parser Golden Fixtures
+
+**Status:** PLANNED  
+**Priority:** P1  
+**Target:** V0.2A
+
+Create sanitized representative native rollout fixtures for parser regression tests.
+
+Fixture categories:
+
+```text
+basic conversation
+tool calls
+reasoning
+token usage
+long session
+legacy session
+unknown event
+partial final line
+```
+
+Tests should verify:
+
+```text
+native input
+    ↓
+expected normalized output
+```
+
+Fixtures must never contain credentials, secrets, atau sensitive account data.
 
 ---
 
@@ -1087,7 +1418,80 @@ CASR should remain local-first and architecture-driven until requirements prove 
 
 ---
 
-# 14. Recommended Immediate Sequence
+# 14. Architecture Rules
+
+These are not optional convenience items.
+
+## AR-001 — Native Storage Ownership
+
+```text
+CODEX_HOME = READ ONLY
+CASR_HOME  = READ / WRITE
+```
+
+CASR must never mutate native provider-owned session storage.
+
+---
+
+## AR-002 — Canonical History Is Lossless
+
+```text
+raw canonical history
+must not be destructively compacted or overwritten
+```
+
+Snapshots and summaries are derived artifacts.
+
+---
+
+## AR-003 — Provider Vocabulary Stops at Adapter Boundary
+
+```text
+Native provider schema
+        ↓
+adapter
+        ↓
+provider-neutral canonical schema
+```
+
+Core canonical types must not expose native Codex vocabulary.
+
+---
+
+## AR-004 — Canonical Import Must Be Idempotent
+
+Repeated import of unchanged native history must produce:
+
+```text
+0 duplicate canonical events
+0 reordered events
+0 missing events
+```
+
+---
+
+## AR-005 — Unknown Native Data Must Not Be Silently Lost
+
+Unknown event types must be preserved or explicitly reported.
+
+---
+
+## AR-006 — Do Not Abstract Before Requirement Exists
+
+Examples:
+
+```text
+AdapterRegistry
+provider factory
+distributed event bus
+plugin framework
+```
+
+should not be introduced before concrete requirements justify them.
+
+---
+
+# 15. Recommended Immediate Sequence
 
 Before V0.2 coding:
 
@@ -1096,35 +1500,97 @@ Before V0.2 coding:
 2. Review V0.1 architecture
 3. Perform Codex rollout JSONL discovery spike
 4. Document event inventory
-5. Design V0.2 scope
-6. Create V0.2-dev-planning.md
-7. Only then start V0.2 implementation
+5. Design canonical vocabulary candidates
+6. Define event identity strategy
+7. Define ordering strategy
+8. Define incremental import strategy
+9. Create V0.2-dev-planning.md
+10. Only then start V0.2A implementation
 ```
 
 ---
 
-# 15. Backlog Summary
+# 16. V0.2 Candidate Breakdown
 
-Highest-priority future items:
+## V0.2A — Canonical Event Import
+
+Candidate scope:
+
+```text
+rollout discovery
+Codex parser
+canonical vocabulary
+event identity
+ordering
+incremental import cursor
+unknown event preservation
+partial/corrupt source handling
+golden fixtures
+canonical event persistence
+```
+
+---
+
+## V0.2B — Token Metrics
+
+Candidate scope:
+
+```text
+usage event normalization
+per-turn metrics
+per-execution metrics
+per-session aggregates
+```
+
+---
+
+## V0.2C — Execution History
+
+Candidate scope:
+
+```text
+resume invocation history
+runtime start/end
+workspace
+model
+reasoning effort
+exit status
+native binding
+```
+
+---
+
+# 17. Backlog Summary
+
+Highest-priority items:
 
 ```text
 P0
 ---
-Canonical Event Store
-Canonical Event Import
-Stable Event Identity
-Codex Rollout Discovery Spike
-Context Compiler
-Multiple Native Bindings
-Read-only Native Storage Guard
-Credential Safety
-Provider-independent Logical Session
-Provider Switch
+BL-CORE-001 Canonical Event Store
+BL-CORE-002 Canonical Event Import
+BL-CORE-003 Stable Event Identity
+BL-CORE-008 Context Compiler
+BL-CORE-012 Canonical Vocabulary Isolation
+BL-CORE-013 Incremental Import Cursor
+BL-CORE-014 Canonical Event Ordering Semantics
+
+BL-ADAPTER-001 Codex Rollout Discovery Spike
+BL-ADAPTER-005 Unknown Native Event Preservation
+
+BL-SESSION-006 Multiple Native Bindings
+
+BL-SAFE-001 Explicit Read-only Codex Guard
+BL-SAFE-002 Credential Path Denylist
+
+BL-XPROV-001 Provider-independent Logical Session
+BL-XPROV-002 Provider Switch
 ```
 
 Immediate next investigation:
 
 ```text
+BL-ADAPTER-001
 Codex Rollout Discovery Spike
 ```
 
@@ -1132,4 +1598,20 @@ Immediate next implementation milestone after planning:
 
 ```text
 V0.2A — Canonical Event Import
+```
+
+---
+
+# 18. Current Project State
+
+```text
+MVP V0.1
+COMPLETE
+
+Next:
+Architecture Review
++
+Codex Rollout Discovery
++
+V0.2 Planning
 ```
