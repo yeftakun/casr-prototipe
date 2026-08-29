@@ -158,6 +158,10 @@ describe("canonical event migration", () => {
         version: 2,
         name: "canonical_events",
       },
+      {
+        version: 3,
+        name: "import_cursors",
+      },
     ]);
   });
 
@@ -175,7 +179,7 @@ describe("canonical event migration", () => {
       count: number;
     };
 
-    expect(result.count).toBe(2);
+    expect(result.count).toBe(3);
   });
 
   it("stores canonical event provenance", () => {

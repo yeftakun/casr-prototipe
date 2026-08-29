@@ -20,6 +20,11 @@ const migrations: Migration[] = [
     name: "canonical_events",
     fileName: "0002_canonical_events.sql",
   },
+  {
+    version: 3,
+    name: "import_cursors",
+    fileName: "0003_import_cursors.sql",
+  },
 ];
 
 function getMigrationPath(fileName: string): string {

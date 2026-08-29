@@ -127,6 +127,10 @@ describe("CASR v0.1 to v0.2 migration upgrade", () => {
         version: 2,
         name: "canonical_events",
       },
+      {
+        version: 3,
+        name: "import_cursors",
+      },
     ]);
 
     const session = database
