@@ -15,6 +15,11 @@ const migrations: Migration[] = [
     name: "initial",
     fileName: "0001_initial.sql",
   },
+  {
+    version: 2,
+    name: "canonical_events",
+    fileName: "0002_canonical_events.sql",
+  },
 ];
 
 function getMigrationPath(fileName: string): string {
