@@ -6,7 +6,7 @@ import {
   runDoctorChecks,
 } from "./commands/doctor.js";
 import { registerHistoryCommand } from "./commands/history.js";
-import { runInspect } from "./commands/inspect.js";
+import { type InspectOptions, runInspect } from "./commands/inspect.js";
 import { runResume } from "./commands/resume.js";
 import { runSessions } from "./commands/sessions.js";
 import { runSync, type SyncOptions } from "./commands/sync.js";
@@ -45,8 +45,9 @@ export function createProgram(): Command {
     .command("inspect")
     .description("Inspect a CASR session")
     .argument("<session-id>", "CASR session ID")
-    .action((sessionId: string) => {
-      runInspect(sessionId);
+    .option("--json", "output structured diagnostics JSON")
+    .action((sessionId: string, options: InspectOptions) => {
+      runInspect(sessionId, options);
     });
 
   program
