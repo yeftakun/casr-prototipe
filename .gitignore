@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# My any temp here
+mytemp/
+
 # Build output
 dist/
 coverage/
