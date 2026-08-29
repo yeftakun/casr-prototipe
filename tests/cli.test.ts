@@ -10,4 +10,16 @@ describe("CASR CLI", () => {
     expect(program.description()).toBe("Canonical Agent Session Runtime");
     expect(program.version()).toBe("0.1.0");
   });
+
+  it("registers all MVP commands", () => {
+    const program = createProgram();
+
+    expect(program.commands.map((command) => command.name())).toEqual([
+      "doctor",
+      "sync",
+      "sessions",
+      "inspect",
+      "resume",
+    ]);
+  });
 });

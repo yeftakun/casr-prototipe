@@ -6,6 +6,7 @@ import {
   runDoctorChecks,
 } from "./commands/doctor.js";
 import { runInspect } from "./commands/inspect.js";
+import { runResume } from "./commands/resume.js";
 import { runSessions } from "./commands/sessions.js";
 import { runSync, type SyncOptions } from "./commands/sync.js";
 
@@ -45,6 +46,14 @@ export function createProgram(): Command {
     .argument("<session-id>", "CASR session ID")
     .action((sessionId: string) => {
       runInspect(sessionId);
+    });
+
+  program
+    .command("resume")
+    .description("Resume the native agent session")
+    .argument("<session-id>", "CASR session ID")
+    .action((sessionId: string) => {
+      runResume(sessionId);
     });
 
   return program;
