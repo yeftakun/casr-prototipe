@@ -1,8 +1,11 @@
 import type Database from "better-sqlite3";
 
+import { probeCodexSourceHealth } from "../../adapters/codex/codex-source-health-probe.js";
+
 import {
   type ImportSourceDiagnostic,
   SessionDiagnosticsService,
+  type SourceContentProbe,
 } from "../../services/session-diagnostics-service.js";
 
 import { openCasrDatabase } from "../../storage/database.js";
@@ -27,9 +30,19 @@ function displayNumber(value: number | null): string {
   return value === null ? "-" : String(value);
 }
 
+const sourceContentProbe: SourceContentProbe = (request) => {
+  if (request.adapter === "codex") {
+    return probeCodexSourceHealth(request);
+  }
+
+  return null;
+};
+
 function printImportDiagnostic(
   diagnostic: ImportSourceDiagnostic,
+
   log: (value: string) => void,
+
   index: number,
 ): void {
   log(`Source ${index + 1}`);
@@ -58,9 +71,29 @@ function printImportDiagnostic(
 
   log(`Lag Bytes         : ${displayNumber(diagnostic.lagBytes)}`);
 
+  log(`Pending Records   : ${displayNumber(diagnostic.pendingRecords)}`);
+
   log(`Anchor            : ${diagnostic.anchorPresent ? "SET" : "EMPTY"}`);
 
   log(`Cursor Updated    : ${diagnostic.cursorUpdatedAt ?? "-"}`);
+
+  if (diagnostic.issueReason) {
+    log(`Issue             : ${diagnostic.issueReason}`);
+
+    log(`Issue Record      : ${displayNumber(diagnostic.issueRecordIndex)}`);
+
+    const issueBytes =
+      diagnostic.issueByteOffsetStart !== null &&
+      diagnostic.issueByteOffsetEnd !== null
+        ? `${diagnostic.issueByteOffsetStart}..${diagnostic.issueByteOffsetEnd}`
+        : "-";
+
+    log(`Issue Bytes       : ${issueBytes}`);
+
+    if (diagnostic.issueError) {
+      log(`Issue Error       : ${diagnostic.issueError}`);
+    }
+  }
 
   if (diagnostic.sourceError) {
     log(`Source Error      : ${diagnostic.sourceError}`);
@@ -69,7 +102,9 @@ function printImportDiagnostic(
 
 export function runInspect(
   sessionId: string,
+
   options: InspectOptions = {},
+
   dependencies: InspectDependencies = {},
 ): void {
   const openDatabase = dependencies.openDatabase ?? openCasrDatabase;
@@ -89,7 +124,11 @@ export function runInspect(
   try {
     runMigrations(database);
 
-    const service = new SessionDiagnosticsService(database);
+    const service = new SessionDiagnosticsService(
+      database,
+      undefined,
+      sourceContentProbe,
+    );
 
     const result = service.inspect(sessionId);
 

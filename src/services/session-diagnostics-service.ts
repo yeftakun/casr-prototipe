@@ -25,14 +25,54 @@ export const IMPORT_DIAGNOSTIC_STATUSES = [
   "SOURCE_GREW",
   "SOURCE_MISSING",
   "SOURCE_TRUNCATED",
+  "MALFORMED_RECORD",
+  "DEFERRED_TAIL",
 ] as const;
 
 export type ImportDiagnosticStatus =
   (typeof IMPORT_DIAGNOSTIC_STATUSES)[number];
 
+export type SourceReadIssueReason = "malformed_record" | "deferred_tail";
+
+export interface SourceReadIssue {
+  reason: SourceReadIssueReason;
+
+  recordIndex: number;
+
+  byteOffsetStart: number;
+
+  byteOffsetEnd: number;
+
+  error: string;
+}
+
+export interface SourceContentProbeRequest {
+  adapter: string;
+
+  nativeSessionId: string;
+
+  nativeSource: string;
+
+  startOffset: number;
+
+  startRecordIndex: number;
+}
+
+export interface SourceContentProbeResult {
+  pendingRecordCount: number;
+
+  issue: SourceReadIssue | null;
+}
+
+export type SourceContentProbe = (
+  request: SourceContentProbeRequest,
+) => SourceContentProbeResult | null;
+
 export interface SourceFileSnapshot {
   exists: boolean;
+
   size: number | null;
+
   error: string | null;
 }
 
@@ -40,7 +80,9 @@ export type SourceFileStat = (nativeSource: string) => SourceFileSnapshot;
 
 export interface ImportSourceDiagnostic {
   adapter: string;
+
   nativeSessionId: string;
+
   nativeSource: string;
 
   status: ImportDiagnosticStatus;
@@ -57,9 +99,21 @@ export interface ImportSourceDiagnostic {
 
   lagBytes: number | null;
 
+  pendingRecords: number | null;
+
   anchorPresent: boolean;
 
   cursorUpdatedAt: string | null;
+
+  issueReason: SourceReadIssueReason | null;
+
+  issueRecordIndex: number | null;
+
+  issueByteOffsetStart: number | null;
+
+  issueByteOffsetEnd: number | null;
+
+  issueError: string | null;
 
   sourceError: string | null;
 }
@@ -77,7 +131,9 @@ function defaultSourceFileStat(nativeSource: string): SourceFileSnapshot {
     if (!existsSync(nativeSource)) {
       return {
         exists: false,
+
         size: null,
+
         error: null,
       };
     }
@@ -87,19 +143,24 @@ function defaultSourceFileStat(nativeSource: string): SourceFileSnapshot {
     if (!stat.isFile()) {
       return {
         exists: false,
+
         size: null,
+
         error: "Native source exists but is not a regular file.",
       };
     }
 
     return {
       exists: true,
+
       size: stat.size,
+
       error: null,
     };
   } catch (error) {
     return {
       exists: false,
+
       size: null,
 
       error: error instanceof Error ? error.message : String(error),
@@ -113,6 +174,8 @@ function deriveStatus(
   cursor: ImportCursor | null,
 
   snapshot: SourceFileSnapshot,
+
+  probe: SourceContentProbeResult | null,
 ): ImportDiagnosticStatus {
   if (!cursor) {
     return history.eventCount === 0 ? "NOT_IMPORTED" : "MISSING_CURSOR";
@@ -130,6 +193,14 @@ function deriveStatus(
 
   if (currentSize < cursor.byteOffset || currentSize < cursor.sourceFileSize) {
     return "SOURCE_TRUNCATED";
+  }
+
+  if (probe?.issue?.reason === "malformed_record") {
+    return "MALFORMED_RECORD";
+  }
+
+  if (probe?.issue?.reason === "deferred_tail") {
+    return "DEFERRED_TAIL";
   }
 
   if (currentSize > cursor.sourceFileSize) {
@@ -159,6 +230,12 @@ function calculateLagBytes(
   return snapshot.size - cursor.byteOffset;
 }
 
+interface ProbeOutcome {
+  result: SourceContentProbeResult | null;
+
+  error: string | null;
+}
+
 export class SessionDiagnosticsService {
   private readonly sessions: SessionQueryRepository;
 
@@ -170,6 +247,8 @@ export class SessionDiagnosticsService {
     database: Database.Database,
 
     private readonly sourceFileStat: SourceFileStat = defaultSourceFileStat,
+
+    private readonly sourceContentProbe: SourceContentProbe = () => null,
   ) {
     this.sessions = new SessionQueryRepository(database);
 
@@ -202,6 +281,7 @@ export class SessionDiagnosticsService {
 
   private inspectSource(
     source: NativeDiagnosticSource,
+
     history: CanonicalHistoryDiagnosticSummary,
   ): ImportSourceDiagnostic {
     const cursor = this.cursors.findByNativeSource(
@@ -211,10 +291,21 @@ export class SessionDiagnosticsService {
     );
 
     /*
-     * File metadata inspection only.
-     * No rollout content is read here.
+     * Metadata inspection is always read-only.
      */
     const snapshot = this.sourceFileStat(source.nativeSource);
+
+    /*
+     * Content probing begins ONLY from the persisted
+     * safe cursor boundary.
+     *
+     * It never writes to CODEX_HOME or advances CASR state.
+     */
+    const probeOutcome = this.probeSource(source, cursor, snapshot);
+
+    const probe = probeOutcome.result;
+
+    const issue = probe?.issue ?? null;
 
     return {
       adapter: source.adapter,
@@ -223,7 +314,7 @@ export class SessionDiagnosticsService {
 
       nativeSource: source.nativeSource,
 
-      status: deriveStatus(history, cursor, snapshot),
+      status: deriveStatus(history, cursor, snapshot, probe),
 
       cursorPresent: cursor !== null,
 
@@ -237,11 +328,78 @@ export class SessionDiagnosticsService {
 
       lagBytes: calculateLagBytes(cursor, snapshot),
 
-      anchorPresent: cursor?.lastRecordFingerprint !== null && cursor !== null,
+      pendingRecords: probe?.pendingRecordCount ?? null,
+
+      anchorPresent: cursor !== null && cursor.lastRecordFingerprint !== null,
 
       cursorUpdatedAt: cursor?.updatedAt ?? null,
 
-      sourceError: snapshot.error,
+      issueReason: issue?.reason ?? null,
+
+      issueRecordIndex: issue?.recordIndex ?? null,
+
+      issueByteOffsetStart: issue?.byteOffsetStart ?? null,
+
+      issueByteOffsetEnd: issue?.byteOffsetEnd ?? null,
+
+      issueError: issue?.error ?? null,
+
+      sourceError: snapshot.error ?? probeOutcome.error,
     };
+  }
+
+  private probeSource(
+    source: NativeDiagnosticSource,
+
+    cursor: ImportCursor | null,
+
+    snapshot: SourceFileSnapshot,
+  ): ProbeOutcome {
+    if (!cursor || !snapshot.exists || snapshot.size === null) {
+      return {
+        result: null,
+
+        error: null,
+      };
+    }
+
+    /*
+     * Never ask a reader to start beyond the physical file.
+     * Truncation is diagnosed from metadata instead.
+     */
+    if (
+      snapshot.size < cursor.byteOffset ||
+      snapshot.size < cursor.sourceFileSize
+    ) {
+      return {
+        result: null,
+
+        error: null,
+      };
+    }
+
+    try {
+      return {
+        result: this.sourceContentProbe({
+          adapter: source.adapter,
+
+          nativeSessionId: source.nativeSessionId,
+
+          nativeSource: source.nativeSource,
+
+          startOffset: cursor.byteOffset,
+
+          startRecordIndex: cursor.recordIndex,
+        }),
+
+        error: null,
+      };
+    } catch (error) {
+      return {
+        result: null,
+
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
   }
 }
