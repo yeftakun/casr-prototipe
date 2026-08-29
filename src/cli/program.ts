@@ -5,6 +5,8 @@ import {
   printDoctorResult,
   runDoctorChecks,
 } from "./commands/doctor.js";
+import { runInspect } from "./commands/inspect.js";
+import { runSessions } from "./commands/sessions.js";
 import { runSync, type SyncOptions } from "./commands/sync.js";
 
 export function createProgram(): Command {
@@ -28,6 +30,21 @@ export function createProgram(): Command {
     .option("--codex-home <path>", "Override Codex home directory")
     .action((options: SyncOptions) => {
       runSync(options);
+    });
+
+  program
+    .command("sessions")
+    .description("List CASR sessions")
+    .action(() => {
+      runSessions();
+    });
+
+  program
+    .command("inspect")
+    .description("Inspect a CASR session")
+    .argument("<session-id>", "CASR session ID")
+    .action((sessionId: string) => {
+      runInspect(sessionId);
     });
 
   return program;
