@@ -5,6 +5,7 @@ import {
   printDoctorResult,
   runDoctorChecks,
 } from "./commands/doctor.js";
+import { registerHistoryCommand } from "./commands/history.js";
 import { runInspect } from "./commands/inspect.js";
 import { runResume } from "./commands/resume.js";
 import { runSessions } from "./commands/sessions.js";
@@ -55,6 +56,8 @@ export function createProgram(): Command {
     .action((sessionId: string) => {
       runResume(sessionId);
     });
+
+  registerHistoryCommand(program);
 
   return program;
 }
