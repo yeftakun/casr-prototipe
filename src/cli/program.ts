@@ -5,6 +5,7 @@ import {
   printDoctorResult,
   runDoctorChecks,
 } from "./commands/doctor.js";
+import { runSync, type SyncOptions } from "./commands/sync.js";
 
 export function createProgram(): Command {
   const program = new Command()
@@ -19,6 +20,14 @@ export function createProgram(): Command {
     .action((options: DoctorOptions) => {
       const result = runDoctorChecks(options);
       printDoctorResult(result);
+    });
+
+  program
+    .command("sync")
+    .description("Import and update native agent sessions")
+    .option("--codex-home <path>", "Override Codex home directory")
+    .action((options: SyncOptions) => {
+      runSync(options);
     });
 
   return program;
