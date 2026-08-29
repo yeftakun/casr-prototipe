@@ -15,7 +15,7 @@ export function createProgram(): Command {
   const program = new Command()
     .name("casr")
     .description("Canonical Agent Session Runtime")
-    .version("0.1.1");
+    .version("0.2.0");
 
   program
     .command("doctor")

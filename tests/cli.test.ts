@@ -8,7 +8,7 @@ describe("CASR CLI", () => {
 
     expect(program.name()).toBe("casr");
     expect(program.description()).toBe("Canonical Agent Session Runtime");
-    expect(program.version()).toBe("0.1.1");
+    expect(program.version()).toBe("0.2.0");
   });
 
   it("registers all CLI commands", () => {
