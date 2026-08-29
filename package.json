@@ -1,6 +1,6 @@
 {
   "name": "casr-prototipe",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "main": "index.js",
   "scripts": {
     "test": "vitest run",
@@ -14,14 +14,23 @@
     "type": "git",
     "url": "git+https://github.com/yeftakun/casr-prototipe.git"
   },
-  "keywords": [],
+  "keywords": [
+    "casr",
+    "codex",
+    "agent",
+    "session-runtime",
+    "session-management",
+    "cli",
+    "sqlite",
+    "typescript"
+  ],
   "author": "Yefta Asyel",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/yeftakun/casr-prototipe/issues"
   },
   "homepage": "https://github.com/yeftakun/casr-prototipe#readme",
-  "description": "",
+  "description": "Local logical session registry and native session runtime layer for coding agents, starting with OpenAI Codex CLI.",
   "type": "module",
   "private": true,
   "engines": {
