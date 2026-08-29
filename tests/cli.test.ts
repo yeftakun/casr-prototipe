@@ -11,7 +11,7 @@ describe("CASR CLI", () => {
     expect(program.version()).toBe("0.1.1");
   });
 
-  it("registers all MVP commands", () => {
+  it("registers all CLI commands", () => {
     const program = createProgram();
 
     expect(program.commands.map((command) => command.name())).toEqual([
@@ -20,6 +20,7 @@ describe("CASR CLI", () => {
       "sessions",
       "inspect",
       "resume",
+      "history",
     ]);
   });
 });

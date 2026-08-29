@@ -151,10 +151,7 @@ function summarizeEvent(event: CanonicalEvent): string {
   return `${normalized.slice(0, 97)}...`;
 }
 
-function projectJsonEvent(
-  event: CanonicalEvent,
-  includeRaw: boolean,
-): Record<string, unknown> {
+function projectJsonEvent(event: CanonicalEvent, includeRaw: boolean): unknown {
   if (includeRaw) {
     return event;
   }
