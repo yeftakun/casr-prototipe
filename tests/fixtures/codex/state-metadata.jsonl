@@ -1,0 +1,3 @@
+{"timestamp":"2026-08-29T04:00:00.000Z","type":"turn_context","ordinal":30,"payload":{"turn_id":"turn-state-1"}}
+{"timestamp":"2026-08-29T04:00:01.000Z","type":"event_msg","ordinal":31,"payload":{"type":"token_count","info":{"input":123,"output":45}}}
+{"timestamp":"2026-08-29T04:00:02.000Z","type":"session_meta","ordinal":32,"payload":{"id":"session-meta-modern","cwd":"C:\\golden\\workspace"}}

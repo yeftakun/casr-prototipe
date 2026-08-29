@@ -1,0 +1,72 @@
+{
+  "fixture": "legacy-basic.jsonl",
+  "stopReason": "eof",
+  "drafts": [
+    {
+      "kind": "message",
+      "role": "assistant",
+      "occurredAt": "2026-05-27T13:01:35.000Z",
+      "payload": {
+        "text": "Legacy hello"
+      },
+      "source": {
+        "adapter": "codex",
+        "nativeSessionId": "golden-native-session",
+        "nativeSource": "legacy-basic.jsonl",
+        "sourcePosition": 0,
+        "fingerprint": "sha256:8ac50338064c958f87a05ff3cc0a2070a2f026af9e3fe9bf27bee008e4e5c7cf",
+        "nativeOrdinal": null,
+        "nativeTopLevelType": "response_item",
+        "nativePayloadType": "message",
+        "nativePayloadId": "legacy-message-1",
+        "nativeTurnId": null,
+        "nativeCallId": null
+      },
+      "raw": {
+        "timestamp": "2026-05-27T13:01:35.000Z",
+        "type": "response_item",
+        "payload": {
+          "type": "message",
+          "id": "legacy-message-1",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "Legacy hello"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "kind": "metadata",
+      "role": null,
+      "occurredAt": "2026-05-27T13:01:36.000Z",
+      "payload": {
+        "scope": "session",
+        "workingDirectory": "C:\\legacy\\workspace"
+      },
+      "source": {
+        "adapter": "codex",
+        "nativeSessionId": "golden-native-session",
+        "nativeSource": "legacy-basic.jsonl",
+        "sourcePosition": 1,
+        "fingerprint": "sha256:1a1b25e52b4ce04a04422f6b19f76b20bf0e0b0718fc8f59ba966ab4de999cfc",
+        "nativeOrdinal": null,
+        "nativeTopLevelType": "session_meta",
+        "nativePayloadType": null,
+        "nativePayloadId": "legacy-meta-1",
+        "nativeTurnId": null,
+        "nativeCallId": null
+      },
+      "raw": {
+        "timestamp": "2026-05-27T13:01:36.000Z",
+        "type": "session_meta",
+        "payload": {
+          "id": "legacy-meta-1",
+          "cwd": "C:\\legacy\\workspace"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+{"timestamp":"2026-08-29T01:00:00.000Z","type":"response_item","ordinal":0,"payload":{"type":"message","id":"modern-message-1","turn_id":"turn-modern-1","role":"assistant","content":[{"type":"output_text","text":"Modern answer"}]}}
+{"timestamp":"2026-08-29T01:00:01.000Z","type":"event_msg","ordinal":1,"payload":{"type":"user_message","id":"modern-user-1","turn_id":"turn-modern-2","message":"Modern question"}}
+{"timestamp":"2026-08-29T01:00:02.000Z","type":"event_msg","ordinal":2,"payload":{"type":"agent_message","id":"modern-agent-1","turn_id":"turn-modern-2","message":"Modern follow-up"}}

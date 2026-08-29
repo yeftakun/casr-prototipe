@@ -1,0 +1,108 @@
+{
+  "fixture": "modern-basic.jsonl",
+  "stopReason": "eof",
+  "drafts": [
+    {
+      "kind": "message",
+      "role": "assistant",
+      "occurredAt": "2026-08-29T01:00:00.000Z",
+      "payload": {
+        "text": "Modern answer"
+      },
+      "source": {
+        "adapter": "codex",
+        "nativeSessionId": "golden-native-session",
+        "nativeSource": "modern-basic.jsonl",
+        "sourcePosition": 0,
+        "fingerprint": "sha256:38f8a6ce2db8eb693d29229bc3d43e242035bf657b202f29885a9584ac61f021",
+        "nativeOrdinal": 0,
+        "nativeTopLevelType": "response_item",
+        "nativePayloadType": "message",
+        "nativePayloadId": "modern-message-1",
+        "nativeTurnId": "turn-modern-1",
+        "nativeCallId": null
+      },
+      "raw": {
+        "timestamp": "2026-08-29T01:00:00.000Z",
+        "type": "response_item",
+        "ordinal": 0,
+        "payload": {
+          "type": "message",
+          "id": "modern-message-1",
+          "turn_id": "turn-modern-1",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "Modern answer"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "kind": "message",
+      "role": "user",
+      "occurredAt": "2026-08-29T01:00:01.000Z",
+      "payload": {
+        "text": "Modern question"
+      },
+      "source": {
+        "adapter": "codex",
+        "nativeSessionId": "golden-native-session",
+        "nativeSource": "modern-basic.jsonl",
+        "sourcePosition": 1,
+        "fingerprint": "sha256:512bb03294e674bded31224e1fc5ec78c23464286fbb5524ce28b8c62be7b37b",
+        "nativeOrdinal": 1,
+        "nativeTopLevelType": "event_msg",
+        "nativePayloadType": "user_message",
+        "nativePayloadId": "modern-user-1",
+        "nativeTurnId": "turn-modern-2",
+        "nativeCallId": null
+      },
+      "raw": {
+        "timestamp": "2026-08-29T01:00:01.000Z",
+        "type": "event_msg",
+        "ordinal": 1,
+        "payload": {
+          "type": "user_message",
+          "id": "modern-user-1",
+          "turn_id": "turn-modern-2",
+          "message": "Modern question"
+        }
+      }
+    },
+    {
+      "kind": "message",
+      "role": "assistant",
+      "occurredAt": "2026-08-29T01:00:02.000Z",
+      "payload": {
+        "text": "Modern follow-up"
+      },
+      "source": {
+        "adapter": "codex",
+        "nativeSessionId": "golden-native-session",
+        "nativeSource": "modern-basic.jsonl",
+        "sourcePosition": 2,
+        "fingerprint": "sha256:8c4e304c83c4d712fe225915268e6c243e896fa6d296373e139c1bedfd3e6d9c",
+        "nativeOrdinal": 2,
+        "nativeTopLevelType": "event_msg",
+        "nativePayloadType": "agent_message",
+        "nativePayloadId": "modern-agent-1",
+        "nativeTurnId": "turn-modern-2",
+        "nativeCallId": null
+      },
+      "raw": {
+        "timestamp": "2026-08-29T01:00:02.000Z",
+        "type": "event_msg",
+        "ordinal": 2,
+        "payload": {
+          "type": "agent_message",
+          "id": "modern-agent-1",
+          "turn_id": "turn-modern-2",
+          "message": "Modern follow-up"
+        }
+      }
+    }
+  ]
+}

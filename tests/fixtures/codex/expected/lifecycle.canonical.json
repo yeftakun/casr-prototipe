@@ -1,0 +1,157 @@
+{
+  "fixture": "lifecycle.jsonl",
+  "stopReason": "eof",
+  "drafts": [
+    {
+      "kind": "lifecycle",
+      "role": null,
+      "occurredAt": "2026-08-29T03:00:00.000Z",
+      "payload": {
+        "scope": "turn",
+        "status": "started"
+      },
+      "source": {
+        "adapter": "codex",
+        "nativeSessionId": "golden-native-session",
+        "nativeSource": "lifecycle.jsonl",
+        "sourcePosition": 0,
+        "fingerprint": "sha256:c8175ff0566d0e8d0956b8f312bd261b1c091e83e862f6e523ac3dbb5cbfb9db",
+        "nativeOrdinal": 20,
+        "nativeTopLevelType": "event_msg",
+        "nativePayloadType": "task_started",
+        "nativePayloadId": null,
+        "nativeTurnId": "turn-life-1",
+        "nativeCallId": null
+      },
+      "raw": {
+        "timestamp": "2026-08-29T03:00:00.000Z",
+        "type": "event_msg",
+        "ordinal": 20,
+        "payload": {
+          "type": "task_started",
+          "turn_id": "turn-life-1"
+        }
+      }
+    },
+    {
+      "kind": "lifecycle",
+      "role": null,
+      "occurredAt": "2026-08-29T03:00:01.000Z",
+      "payload": {
+        "scope": "turn",
+        "status": "aborted"
+      },
+      "source": {
+        "adapter": "codex",
+        "nativeSessionId": "golden-native-session",
+        "nativeSource": "lifecycle.jsonl",
+        "sourcePosition": 1,
+        "fingerprint": "sha256:cf522196f54694a8a3c46aa623e4a972ab1d7132b5e675dfa04791f3647a99c4",
+        "nativeOrdinal": 21,
+        "nativeTopLevelType": "event_msg",
+        "nativePayloadType": "turn_aborted",
+        "nativePayloadId": null,
+        "nativeTurnId": "turn-life-1",
+        "nativeCallId": null
+      },
+      "raw": {
+        "timestamp": "2026-08-29T03:00:01.000Z",
+        "type": "event_msg",
+        "ordinal": 21,
+        "payload": {
+          "type": "turn_aborted",
+          "turn_id": "turn-life-1"
+        }
+      }
+    },
+    {
+      "kind": "lifecycle",
+      "role": null,
+      "occurredAt": "2026-08-29T03:00:02.000Z",
+      "payload": {
+        "scope": "context",
+        "status": "compacted"
+      },
+      "source": {
+        "adapter": "codex",
+        "nativeSessionId": "golden-native-session",
+        "nativeSource": "lifecycle.jsonl",
+        "sourcePosition": 2,
+        "fingerprint": "sha256:9831c97c801bfbd42657edc20c4c3447ac482d755c3a44ecfd63a0940effbe47",
+        "nativeOrdinal": 22,
+        "nativeTopLevelType": "event_msg",
+        "nativePayloadType": "context_compacted",
+        "nativePayloadId": null,
+        "nativeTurnId": "turn-life-1",
+        "nativeCallId": null
+      },
+      "raw": {
+        "timestamp": "2026-08-29T03:00:02.000Z",
+        "type": "event_msg",
+        "ordinal": 22,
+        "payload": {
+          "type": "context_compacted",
+          "turn_id": "turn-life-1"
+        }
+      }
+    },
+    {
+      "kind": "lifecycle",
+      "role": null,
+      "occurredAt": "2026-08-29T03:00:03.000Z",
+      "payload": {
+        "scope": "thread",
+        "status": "rolled_back"
+      },
+      "source": {
+        "adapter": "codex",
+        "nativeSessionId": "golden-native-session",
+        "nativeSource": "lifecycle.jsonl",
+        "sourcePosition": 3,
+        "fingerprint": "sha256:f232ec67351c1db0e1c5673977e394d239da0c690ede1adb272208028bfec682",
+        "nativeOrdinal": 23,
+        "nativeTopLevelType": "event_msg",
+        "nativePayloadType": "thread_rolled_back",
+        "nativePayloadId": null,
+        "nativeTurnId": null,
+        "nativeCallId": null
+      },
+      "raw": {
+        "timestamp": "2026-08-29T03:00:03.000Z",
+        "type": "event_msg",
+        "ordinal": 23,
+        "payload": {
+          "type": "thread_rolled_back"
+        }
+      }
+    },
+    {
+      "kind": "unknown",
+      "role": null,
+      "occurredAt": "2026-08-29T03:00:04.000Z",
+      "payload": {},
+      "source": {
+        "adapter": "codex",
+        "nativeSessionId": "golden-native-session",
+        "nativeSource": "lifecycle.jsonl",
+        "sourcePosition": 4,
+        "fingerprint": "sha256:b7a1ef242b809929d10b515a6bb1c30b62d1d06fd7577c6eee7c9c0a8db8ac2b",
+        "nativeOrdinal": 24,
+        "nativeTopLevelType": "event_msg",
+        "nativePayloadType": "future_codex_event",
+        "nativePayloadId": null,
+        "nativeTurnId": null,
+        "nativeCallId": null
+      },
+      "raw": {
+        "timestamp": "2026-08-29T03:00:04.000Z",
+        "type": "event_msg",
+        "ordinal": 24,
+        "payload": {
+          "type": "future_codex_event",
+          "future": true
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "fixture": "state-metadata.jsonl",
+  "stopReason": "eof",
+  "drafts": [
+    {
+      "kind": "state",
+      "role": null,
+      "occurredAt": "2026-08-29T04:00:00.000Z",
+      "payload": {
+        "scope": "turn"
+      },
+      "source": {
+        "adapter": "codex",
+        "nativeSessionId": "golden-native-session",
+        "nativeSource": "state-metadata.jsonl",
+        "sourcePosition": 0,
+        "fingerprint": "sha256:600adcc7689853564efe7da180d9f8967006b04f2a75e4e4aa53ce582e8a44f5",
+        "nativeOrdinal": 30,
+        "nativeTopLevelType": "turn_context",
+        "nativePayloadType": null,
+        "nativePayloadId": null,
+        "nativeTurnId": "turn-state-1",
+        "nativeCallId": null
+      },
+      "raw": {
+        "timestamp": "2026-08-29T04:00:00.000Z",
+        "type": "turn_context",
+        "ordinal": 30,
+        "payload": {
+          "turn_id": "turn-state-1"
+        }
+      }
+    },
+    {
+      "kind": "metadata",
+      "role": null,
+      "occurredAt": "2026-08-29T04:00:01.000Z",
+      "payload": {
+        "metric": "tokens"
+      },
+      "source": {
+        "adapter": "codex",
+        "nativeSessionId": "golden-native-session",
+        "nativeSource": "state-metadata.jsonl",
+        "sourcePosition": 1,
+        "fingerprint": "sha256:ff0afffe2241a8dd51bb2264f32b1d6fda937324b64eda8e6229ae0f91477899",
+        "nativeOrdinal": 31,
+        "nativeTopLevelType": "event_msg",
+        "nativePayloadType": "token_count",
+        "nativePayloadId": null,
+        "nativeTurnId": null,
+        "nativeCallId": null
+      },
+      "raw": {
+        "timestamp": "2026-08-29T04:00:01.000Z",
+        "type": "event_msg",
+        "ordinal": 31,
+        "payload": {
+          "type": "token_count",
+          "info": {
+            "input": 123,
+            "output": 45
+          }
+        }
+      }
+    },
+    {
+      "kind": "metadata",
+      "role": null,
+      "occurredAt": "2026-08-29T04:00:02.000Z",
+      "payload": {
+        "scope": "session",
+        "workingDirectory": "C:\\golden\\workspace"
+      },
+      "source": {
+        "adapter": "codex",
+        "nativeSessionId": "golden-native-session",
+        "nativeSource": "state-metadata.jsonl",
+        "sourcePosition": 2,
+        "fingerprint": "sha256:5e2ce77868122751ccd9ad323b60b52162e5ce0dfc970453244664341806b3b0",
+        "nativeOrdinal": 32,
+        "nativeTopLevelType": "session_meta",
+        "nativePayloadType": null,
+        "nativePayloadId": "session-meta-modern",
+        "nativeTurnId": null,
+        "nativeCallId": null
+      },
+      "raw": {
+        "timestamp": "2026-08-29T04:00:02.000Z",
+        "type": "session_meta",
+        "ordinal": 32,
+        "payload": {
+          "id": "session-meta-modern",
+          "cwd": "C:\\golden\\workspace"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "fixture": "deferred-tail.jsonl",
+  "stopReason": "deferred_tail",
+  "recordCount": 1,
+  "nextOffset": 175,
+  "nextRecordIndex": 1,
+  "fileSize": 279,
+  "issue": {
+    "recordIndex": 1,
+    "byteOffsetStart": 175,
+    "byteOffsetEnd": 279,
+    "rawLine": "{\"timestamp\":\"2026-08-29T06:00:01.000Z\",\"type\":\"event_msg\",\"ordinal\":51,\"payload\":{\"type\":\"task_started\""
+  },
+  "canonical": [
+    {
+      "kind": "message",
+      "role": "user",
+      "payload": {
+        "text": "safe-prefix"
+      },
+      "sourcePosition": 0
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "fixture": "malformed-middle.jsonl",
+  "stopReason": "malformed_record",
+  "recordCount": 1,
+  "nextOffset": 175,
+  "nextRecordIndex": 1,
+  "fileSize": 369,
+  "issue": {
+    "recordIndex": 1,
+    "byteOffsetStart": 175,
+    "byteOffsetEnd": 186,
+    "rawLine": "{\"broken\":"
+  },
+  "canonical": [
+    {
+      "kind": "message",
+      "role": "user",
+      "payload": {
+        "text": "safe-before"
+      },
+      "sourcePosition": 0
+    }
+  ]
+}

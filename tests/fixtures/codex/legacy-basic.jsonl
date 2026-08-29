@@ -1,0 +1,2 @@
+{"timestamp":"2026-05-27T13:01:35.000Z","type":"response_item","payload":{"type":"message","id":"legacy-message-1","role":"assistant","content":[{"type":"output_text","text":"Legacy hello"}]}}
+{"timestamp":"2026-05-27T13:01:36.000Z","type":"session_meta","payload":{"id":"legacy-meta-1","cwd":"C:\\legacy\\workspace"}}
