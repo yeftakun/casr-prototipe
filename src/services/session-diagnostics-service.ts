@@ -190,7 +190,7 @@ export class SessionDiagnosticsService {
     const nativeSources = this.diagnostics.listNativeSources(sessionId);
 
     const imports = nativeSources.map((source) =>
-      this.inspectSource(sessionId, source, canonicalHistory),
+      this.inspectSource(source, canonicalHistory),
     );
 
     return {
@@ -201,7 +201,6 @@ export class SessionDiagnosticsService {
   }
 
   private inspectSource(
-    sessionId: string,
     source: NativeDiagnosticSource,
     history: CanonicalHistoryDiagnosticSummary,
   ): ImportSourceDiagnostic {
