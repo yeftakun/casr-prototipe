@@ -90,6 +90,20 @@ export function printDoctorResult(result: DoctorResult): void {
       : "[FAIL] threads table not found",
   );
 
+  if (result.storage.stateDbReadable && result.storage.threadsTableExists) {
+    if (result.storage.schemaSupported) {
+      console.log("[OK] Codex storage schema compatible");
+    } else {
+      console.log("[FAIL] Codex storage schema unsupported");
+
+      if (result.storage.missingColumns.length > 0) {
+        console.log(
+          `[INFO] Missing columns: ${result.storage.missingColumns.join(", ")}`,
+        );
+      }
+    }
+  }
+
   if (result.storage.threadCount !== null) {
     console.log(
       `[INFO] ${result.storage.threadCount} native Codex sessions detected`,

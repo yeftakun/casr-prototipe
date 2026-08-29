@@ -3,6 +3,7 @@ import { join } from "node:path";
 import Database from "better-sqlite3";
 
 import type { NativeSession } from "../../core/session/native-session.js";
+import { assertSupportedCodexSchema } from "./codex-schema.js";
 import type { CodexThreadRow } from "./codex-types.js";
 
 function unixSecondsToIso(value: number): string {
@@ -41,6 +42,7 @@ export class CodexAdapter {
     });
 
     try {
+      assertSupportedCodexSchema(database);
       const rows = database
         .prepare(
           `

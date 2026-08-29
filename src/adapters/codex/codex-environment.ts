@@ -4,6 +4,8 @@ import { isAbsolute, join, resolve } from "node:path";
 
 import Database from "better-sqlite3";
 
+import { inspectCodexSchema } from "./codex-schema.js";
+
 export type CodexHomeSource = "cli" | "env" | "default";
 
 export interface ResolvedCodexHome {
@@ -19,6 +21,8 @@ export interface CodexStorageStatus {
   sessionsDirectoryExists: boolean;
   stateDbReadable: boolean;
   threadsTableExists: boolean;
+  schemaSupported: boolean;
+  missingColumns: string[];
   threadCount: number | null;
   error: string | null;
 }
@@ -76,6 +80,8 @@ export function inspectCodexStorage(codexHome: string): CodexStorageStatus {
 
   let stateDbReadable = false;
   let threadsTableExists = false;
+  let schemaSupported = false;
+  let missingColumns: string[] = [];
   let threadCount: number | null = null;
   let error: string | null = null;
 
@@ -90,18 +96,11 @@ export function inspectCodexStorage(codexHome: string): CodexStorageStatus {
 
       stateDbReadable = true;
 
-      const table = database
-        .prepare(
-          `
-            SELECT name
-            FROM sqlite_master
-            WHERE type = 'table'
-              AND name = 'threads'
-          `,
-        )
-        .get() as { name: string } | undefined;
+      const schema = inspectCodexSchema(database);
 
-      threadsTableExists = table?.name === "threads";
+      threadsTableExists = schema.threadsTableExists;
+      schemaSupported = schema.supported;
+      missingColumns = schema.missingColumns;
 
       if (threadsTableExists) {
         const result = database
@@ -128,6 +127,8 @@ export function inspectCodexStorage(codexHome: string): CodexStorageStatus {
     sessionsDirectoryExists,
     stateDbReadable,
     threadsTableExists,
+    schemaSupported,
+    missingColumns,
     threadCount,
     error,
   };
